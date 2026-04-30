@@ -163,6 +163,18 @@ class ConditionalUnet(nn.Module):
         # up1 = 
         # up2 = 
         # out = self.outblock(torch.cat((up2, down0), dim = 1))
+        down0 = self.init_conv(x)
+        down1 = self.downblock1(down0)
+        down1 = self.fusion1(down1, temb2,cemb2)
+        down2 = self.downblock2(down1)
+        down2 = self.fusion2(down2, temb1,cemb1)
+        hidden = self.to_vec(down2)
+        up0 = self.upblock0(hidden)
+        up1 = self.upblock1(up0,down2)
+        up1 = self.fusion3(up1, temb2,cemb2)
+        up2 = self.upblock2(up1,down1)
+        up2 = self.fusion4(up2, temb2,cemb2)
+        out = self.outblock(torch.cat((up2, down0), dim = 1))
         # ==================================================== #
 
         return out
